@@ -8,34 +8,36 @@ import (
 	"time"
 )
 
-type client chan<- string
+type client chan<- string //тип клиент
 
 var (
-	entering = make(chan client)
-	leaving  = make(chan client)
-	messages = make(chan string)
+	entering = make(chan client)//канал для  для регистрации новых клиентов
+	leaving  = make(chan client)//для отслеживания клиентов, которые покидают чат
+	messages = make(chan string)//канал для передачи сообщений между клиентами.
 )
 
 func Broadcaster() {
-	clients := make(map[client]bool)
+	clients := make(map[client]bool)//мапа для отслеживания подключенных клиентов
+	//обработка событий
 	for {
 		select {
 		case msg := <-messages:
 			for cli := range clients {
 				cli <- msg
 			}
-		case cli := <-entering:
+		case cli := <-entering: //получение нового клиента
 			clients[cli] = true
-		case cli := <-leaving:
+		case cli := <-leaving: //клиент покидает чат
 			delete(clients, cli)
-			close(cli)
+			close(cli) //закрываем канал
 		}
 	}
 }
 
+// обрабатывает подключение клиента к серверу
 func HandleConn(conn net.Conn) {
-	currentTime := time.Now().Format("2006-01-02 15:04:05")
-	conn.Write([]byte(fmt.Sprintf("Welcome to chat! \nData: %s\n \nEnter your nickname:", currentTime)))
+	currentTime := time.Now().Format("2006-01-02 15:04:05") //функция времени
+	conn.Write([]byte(fmt.Sprintf("Welcome to chat! \nData: %s\n \nEnter your nickname:", currentTime))) //вывод на экран времени подключенного клиента
 	reader := bufio.NewReader(conn)
 	nickname, _ := reader.ReadString('\n')
 	nickname = strings.TrimSpace(nickname)
@@ -43,8 +45,8 @@ func HandleConn(conn net.Conn) {
 
 	conn.Write([]byte(fmt.Sprintf("Welcome! Data: %s\n", currentTime)))
 
-	ch := make(chan string)
-	go ClientWriter(conn, ch)
+	ch := make(chan string) //канал для передачи информации о действии клиентов
+	go ClientWriter(conn, ch) //горутина пишущая в канал никнеймы сообщения и кто присоеденился и покинул чат
 	ch <- "You are: " + nickname
 	messages <- nickname + " has arrived"
 	entering <- ch
@@ -58,6 +60,7 @@ func HandleConn(conn net.Conn) {
 	conn.Close()
 }
 
+// принимает соединение клиента и канал ch, и отправляет все полученные сообщения из канала клиенту
 func ClientWriter(conn net.Conn, ch <-chan string) {
 	for msg := range ch {
 		fmt.Fprintln(conn, msg)
