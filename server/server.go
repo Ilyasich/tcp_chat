@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"tcp_chat/config"
 )
 
-func main() {
+func StartServer() {
 	listener, err := net.Listen("tcp", "localhost:8000") //создаем TCP-сервер, прослушивающий подключения на локальном адресе и порту 8000
 	fmt.Println("Server has started!")//сообщаем о старте сервера
 	if err != nil {
