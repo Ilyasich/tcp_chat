@@ -1,7 +1,7 @@
 package server
 
 import (
-	"tcp_chat/config"
+	"git/config"
 
 	"go.uber.org/zap"
 

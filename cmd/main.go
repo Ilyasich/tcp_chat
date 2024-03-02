@@ -1,7 +1,7 @@
 package main
 
 import (
-	"tcp_chat/server"
+	"git/server"
 )
 
 func main() {
