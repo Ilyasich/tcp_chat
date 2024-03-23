@@ -82,7 +82,7 @@ func ClientWriter(conn net.Conn, ch <-chan string) {
 	}
 }
 
-//функция для сохранения в бд
+//функция для сохранения в бд????????
 func SaveUserToDB(nickname string) {
 	var err error
 	_, err = db.ExecContext(context.Background(), `INSERT INTO users (id, nickname) VALUES ($1, $2)`, nickname)
