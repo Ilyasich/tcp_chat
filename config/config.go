@@ -24,7 +24,7 @@ var (
 	entering = make(chan client) //канал для регистрации новых клиентов
 	leaving  = make(chan client) //канал для отслеживания клиентов, которые покидают чат
 	messages = make(chan string) //канал для передачи сообщений между клиентами
-	data     = make(chan string) //канал для бд ???
+	data     = make(chan string) //канал для бд ????
 )
 
 func Broadcaster(lg *zap.SugaredLogger) {
