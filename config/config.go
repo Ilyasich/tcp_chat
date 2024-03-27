@@ -38,8 +38,8 @@ func Broadcaster(lg *zap.SugaredLogger) {
 			}
 		case cli := <-entering: //получение нового клиента
 			clients[cli] = true
-		//case cli := <-data:
-		//SaveUserToDB(cli)//???????????
+		case cli := <-data:
+		SaveUserToDB(cli)//??????????? как сохранить сдесь юзеров
 		case cli := <-leaving: //клиент покидает чат
 			delete(clients, cli)
 			close(cli) //закрываем канал
