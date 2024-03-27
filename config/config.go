@@ -6,8 +6,14 @@ import (
 	"net"
 	"strings"
 	"time"
+	"context"
+	"database/sql"
+	"log"
 
 	"go.uber.org/zap"
+	_ "github.com/go-sql-driver/mysql"
+
+	_ "github.com/lib/pq"
 )
 
 type client chan<- string
@@ -16,6 +22,7 @@ var (
 	entering = make(chan client) //канал для регистрации новых клиентов
 	leaving  = make(chan client) //канал для отслеживания клиентов, которые покидают чат
 	messages = make(chan string) //канал для передачи сообщений между клиентами
+	data     = make(chan string) //канал для бд ????
 )
 
 func Broadcaster(lg *zap.SugaredLogger) {
@@ -29,6 +36,8 @@ func Broadcaster(lg *zap.SugaredLogger) {
 			}
 		case cli := <-entering: //получение нового клиента
 			clients[cli] = true
+		case cli := <-data:
+			SaveUserToDB(cli)//??????????? как сохранить сдесь юзеров в bd
 		case cli := <-leaving: //клиент покидает чат
 			delete(clients, cli)
 			close(cli) //закрываем канал
@@ -47,6 +56,8 @@ func HandleConn(lg zap.SugaredLogger, conn net.Conn) {
 	lg.Info("New user:", nickname)
 
 	conn.Write([]byte(fmt.Sprintf("Welcome! Data: %s\n", currentTime)))
+
+//так понимаю тут нужна горутина для передачи сохраненных юзеров в BD
 
 	ch := make(chan string)   //канал для передачи информации о действии клиентов
 	go ClientWriter(conn, ch) //горутина пишущая в канал никнеймы сообщения и кто присоеденился и покинул чат
@@ -68,5 +79,15 @@ func HandleConn(lg zap.SugaredLogger, conn net.Conn) {
 func ClientWriter(conn net.Conn, ch <-chan string) {
 	for msg := range ch {
 		fmt.Fprintln(conn, msg)
+	}
+}
+
+//функция для сохранения в бд????????
+func SaveUserToDB(nickname string) {
+	var err error
+	_, err = db.ExecContext(context.Background(), `INSERT INTO users (id, nickname) VALUES ($1, $2)`, nickname)
+
+	if err != nil {
+		log.Panic(err)
 	}
 }
