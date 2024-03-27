@@ -2,5 +2,3 @@ CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     nickname VARCHAR(50)
 );
-
---DROP TABLE users;
