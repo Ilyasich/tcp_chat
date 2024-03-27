@@ -20,7 +20,7 @@ func StartServer() {
 
 	lg := logger.Sugar()
 
-	listener, err := net.Listen("tcp", "localhost:8000") //создаем TCP-сервер, прослушивающий подключения на локальном адресе и порту 8080
+	listener, err := net.Listen("tcp", "localhost:8000") //создаем TCP-сервер, прослушивающий подключения на локальном адресе и порту 8080.
 	fmt.Println("Server has started!")
 	lg.Info("Server has started...")
 	if err != nil {
